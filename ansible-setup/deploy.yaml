@@ -1,13 +1,23 @@
+---
 - name: Deploy Flask App using Docker
   hosts: localhost
   become: true
   tasks:
 
     - name: Stop and remove any existing container named flask-app
+      shell: docker rm -f flask-app || true
+      ignore_errors: true
+
+    - name: Kill any process using port 5000
       shell: |
-        docker rm -f flask-app || true
-      ignore_errors: yes
+        if lsof -t -i:5000 >/dev/null 2>&1; then
+          lsof -t -i:5000 | xargs kill -9
+        fi
+      ignore_errors: true
+
+    - name: Wait a moment for port to be freed
+      pause:
+        seconds: 2
 
     - name: Run new Flask container
-      shell: |
-        docker run -d -p 5000:5000 --name flask-app flaskapp:latest
+      shell: docker run -d -p 5000:5000 --name flask-app flaskapp:latest
