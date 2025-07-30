@@ -1,8 +1,20 @@
 - name: Deploy Flask App using Docker
   hosts: localhost
+  become: true
   tasks:
+
     - name: Stop old container
-      shell: docker stop flask-app || true && docker rm flask-app || true
+      shell: docker stop flask-app || true
+      ignore_errors: yes
+
+    - name: Remove old container
+      shell: docker rm flask-app || true
+      ignore_errors: yes
+
+    - name: Free up port 5000 if occupied
+      shell: |
+        pid=$(lsof -t -i:5000) && kill -9 $pid || true
+      ignore_errors: yes
 
     - name: Run new container
       shell: docker run -d -p 5000:5000 --name flask-app flaskapp:latest
