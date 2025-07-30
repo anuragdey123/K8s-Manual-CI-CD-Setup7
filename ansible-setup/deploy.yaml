@@ -3,15 +3,23 @@
   become: true
   tasks:
 
-    - name: Stop old container
+    - name: Stop old container (flask-app)
       shell: docker stop flask-app || true
       ignore_errors: yes
 
-    - name: Remove old container
+    - name: Remove old container (flask-app)
       shell: docker rm flask-app || true
       ignore_errors: yes
 
-    - name: Free up port 5000 if occupied
+    - name: Remove any container using port 5000
+      shell: |
+        container_id=$(docker ps -q --filter "publish=5000")
+        if [ ! -z "$container_id" ]; then
+          docker stop $container_id && docker rm $container_id
+        fi
+      ignore_errors: yes
+
+    - name: Free up port 5000 (non-docker processes)
       shell: |
         pid=$(lsof -t -i:5000) && kill -9 $pid || true
       ignore_errors: yes
