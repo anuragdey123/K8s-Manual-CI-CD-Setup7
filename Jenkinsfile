@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone Code') {
             steps {
-                git ' https://github.com/anuragdey123/K8s-Manual-CI-CD-Setup7.git' 
+                git branch: 'main', url: 'https://github.com/anuragdey123/K8s-Manual-CI-CD-Setup7.git'
             }
         }
 
@@ -23,3 +23,4 @@ pipeline {
         }
     }
 }
+
